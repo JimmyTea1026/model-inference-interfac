@@ -1,15 +1,16 @@
 from abc import ABC, abstractmethod  
-import os
 from typing import Optional, Any  
 from pathlib import Path  
+from torch import nn
+import os
 import torch  
-from torch import nn  
 import numpy as np  
 
 class BaseModel(ABC):  
     def __init__(self):  
         self._model: Optional[nn.Module] = None  
         self._is_ready: bool = False  
+        self._normalizer = None
         
     @property  
     def is_ready(self) -> bool:  
@@ -68,10 +69,7 @@ class BaseModel(ABC):
         pass  
     
     def normalize(self, tensor: torch.Tensor) -> torch.Tensor:  
-        """
-        標準化張量，將像素值縮放到 [0, 1] 之間
-        """  
-        return tensor / 255.0
+        return self._normalizer(tensor)
     
     @abstractmethod  
     def postprocess(self, output: torch.Tensor) -> Any:  
